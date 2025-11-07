@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register - Digital Gaon</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                  url('https://images.unsplash.com/photo-1581093588401-22a9b2b5f8e9?auto=format&fit=crop&w=1920&q=80')
+                  no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      text-align: center;
+      margin: 0;
+    }
+
+    .box {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 30px;
+      width: 350px;
+      margin: 80px auto;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+    }
+
+    input:focus {
+      box-shadow: 0 0 8px #00C851;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      background: linear-gradient(90deg, #007BFF, #00C851);
+      color: white;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Register</h2>
+    <input type="text" placeholder="Full Name">
+    <input type="tel" placeholder="Mobile Number">
+    <input type="email" placeholder="Email">
+    <input type="password" placeholder="Password">
+    <input type="date" placeholder="Date of Birth">
+    <button onclick="registerUser()">Sign Up</button>
+  </div>
+
+  <script>
+    function registerUser() {
+      alert("Registration Successful!");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

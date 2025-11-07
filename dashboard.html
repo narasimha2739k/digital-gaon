@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard - Digital Gaon</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+                  url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80')
+                  no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      text-align: center;
+      margin: 0;
+    }
+
+    header {
+      background: rgba(0, 123, 255, 0.8);
+      padding: 40px 20px;
+      border-bottom: 3px solid #00C851;
+    }
+
+    .container {
+      width: 80%;
+      margin: 30px auto;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    .complaint {
+      background: rgba(255,255,255,0.9);
+      color: black;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      background: linear-gradient(90deg, #007BFF, #00C851);
+      color: white;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    textarea {
+      width: 90%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: none;
+      resize: none;
+      font-size: 16px;
+    }
+
+    video {
+      border-radius: 10px;
+      margin: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .hidden { display: none; }
+
+    /* small helper */
+    #gps-info { margin: 8px 0; font-size: 15px; color: #ffd; }
+    #gps-error { color: #ffb3b3; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome to Digital Gaon Dashboard</h1>
+    <p>Track and report community issues in real time.</p>
+  </header>
+
+  <div class="container">
+    <h2>Public Complaints</h2>
+    <div id="complaint-feed">
+      <div class="complaint">
+        <strong>User1:</strong> Water scarcity in village 🌍 <small>Lat: 12.34, Lon: 77.56</small>
+      </div>
+      <div class="complaint">
+        <strong>User2:</strong> Roads need urgent repairs 🏗️ <small>Lat: 10.76, Lon: 74.89</small>
+      </div>
+    </div>
+
+    <button onclick="showComplaintForm()">Post a New Complaint</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="container hidden" id="complaint-form">
+    <h2>Submit a Complaint</h2>
+    <video id="camera" autoplay playsinline></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <div>
+      <button onclick="captureImage()">Capture Image</button>
+      <button id="btn-get-location" onclick="requestLocation()">Capture GPS Location</button>
+    </div>
+    <p id="gps-info">Location: Not Captured</p>
+    <p id="gps-error" aria-live="polite"></p>
+    <textarea placeholder="Describe the issue..." id="complaint-desc"></textarea>
+    <button onclick="submitComplaint()">Submit</button>
+  </div>
+
+  <script>
+    // show/hide complaint form
+    function showComplaintForm() {
+      document.getElementById("complaint-form").classList.remove("hidden");
+    }
+
+    function logout() {
+      alert("Logged out successfully!");
+      window.location.href = "login.html";
+    }
+
+    // start camera (best effort)
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          const vid = document.getElementById("camera");
+          vid.srcObject = stream;
+        })
+        .catch(err => {
+          console.warn("Camera not available or permission denied:", err);
+          // don't block functionality — camera optional
+        });
+    }
+
+    function captureImage() {
+      const video = document.getElementById("camera");
+      const canvas = document.getElementById("canvas");
+      if (!video || video.readyState < 2) {
+        alert("Camera not ready. Make sure you allowed camera access.");
+        return;
+      }
+      const ctx = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0);
+      alert("Image Captured!");
+      // If you want image data URL: canvas.toDataURL("image/png")
+    }
+
+    // ----- Robust Geolocation handling -----
+    const gpsInfoEl = document.getElementById("gps-info");
+    const gpsErrorEl = document.getElementById("gps-error");
+
+    // Helper to display messages
+    function showGPSInfo(text) {
+      gpsInfoEl.textContent = text;
+      gpsErrorEl.textContent = "";
+    }
+    function showGPSError(text) {
+      gpsErrorEl.textContent = text;
+    }
+
+    // Check permission status (if Permissions API supported)
+    async function getPermissionStatus() {
+      if (!navigator.permissions) return null;
+      try {
+        const status = await navigator.permissions.query({ name: 'geolocation' });
+        return status; // PermissionStatus object
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Request location with options & error handling
+    function requestLocation() {
+      gpsErrorEl.textContent = "";
+      // Important: Geolocation only works on HTTPS or localhost.
+      if (!('geolocation' in navigator)) {
+        showGPSError("Geolocation is not supported by this browser.");
+        console.error("Geolocation not supported.");
+        return;
+      }
+
+      // Optionally check permission state to give clearer instructions
+      getPermissionStatus().then(status => {
+        if (status) {
+          console.log("Permission state:", status.state);
+          if (status.state === 'denied') {
+            showGPSError("Location access is blocked. Please enable location permission in your browser settings and try again.");
+            return;
+          }
+          // if 'prompt' or 'granted' continue to request
+        }
+        // Now actually request position
+        navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        });
+      }).catch(err => {
+        // fallback if permissions query fails
+        console.warn("Permissions API error (continuing to request location):", err);
+        navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        });
+      });
+    }
+
+    function successLocation(position) {
+      const lat = position.coords.latitude.toFixed(6);
+      const lon = position.coords.longitude.toFixed(6);
+      const acc = position.coords.accuracy ? `${position.coords.accuracy}m` : 'N/A';
+      showGPSInfo(`Location: Lat ${lat}, Lon ${lon} (accuracy: ${acc})`);
+      console.log("Geolocation success:", position);
+      // store into hidden inputs or use canvas/image if needed
+    }
+
+    function errorLocation(err) {
+      console.warn("Geolocation error:", err);
+      switch (err.code) {
+        case err.PERMISSION_DENIED:
+          showGPSError("Permission denied. Please allow location access in your browser and try again.");
+          break;
+        case err.POSITION_UNAVAILABLE:
+          showGPSError("Position unavailable. Try again outdoors or check your device's location settings.");
+          break;
+        case err.TIMEOUT:
+          showGPSError("Request timed out. Try again (make sure device has a clear sky view).");
+          break;
+        default:
+          showGPSError("An unknown error occurred while fetching location.");
+      }
+    }
+
+    // complaint submit
+    function submitComplaint() {
+      const desc = document.getElementById("complaint-desc").value;
+      if (!desc || !desc.trim()) {
+        return alert("Please enter a description!");
+      }
+      // You could also validate that GPS info exists before submit if required
+      alert("Complaint Submitted Successfully!");
+      document.getElementById("complaint-form").classList.add("hidden");
+    }
+  </script>
+</body>
+</html>

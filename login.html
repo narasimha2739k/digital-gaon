@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Digital Gaon</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+                  url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80')
+                  no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      text-align: center;
+      margin: 0;
+    }
+
+    .box {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 30px;
+      width: 350px;
+      margin: 100px auto;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+    }
+
+    input:focus {
+      box-shadow: 0 0 8px #007BFF;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      background: linear-gradient(90deg, #007BFF, #00C851);
+      color: white;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    a {
+      color: #FFD700;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Login</h2>
+    <input type="text" placeholder="Username or Email">
+    <input type="password" placeholder="Password">
+    <button onclick="loginUser()">Login</button>
+    <p><a href="forgotpassword.html">Forgot Password?</a></p>
+  </div>
+
+  <script>
+    function loginUser() {
+      alert("Login Successful!");
+      window.location.href = "dashboard.html";
+    }
+  </script>
+</body>
+</html>
